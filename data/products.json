@@ -1,0 +1,6 @@
+[
+  {"id":"1","slug":"argentina-home","name":"Camiseta Argentina","category":"Selecciones","team":"Argentina","price":null,"sizes":["S","M","L","XL"],"badge":"Nueva","image":"/products/placeholder-argentina.jpg"},
+  {"id":"2","slug":"club-azul-roja","name":"Camiseta Club Azul y Roja","category":"Clubes","team":"Club","price":null,"sizes":["S","M","L"],"badge":null,"image":"/products/placeholder-club-1.jpg"},
+  {"id":"3","slug":"club-blanca","name":"Camiseta Club Blanca","category":"Clubes","team":"Club","price":null,"sizes":["M","L","XL"],"badge":null,"image":"/products/placeholder-club-2.jpg"},
+  {"id":"4","slug":"retro-negra-dorada","name":"Camiseta Retro Negra y Dorada","category":"Retro","team":"Retro","price":null,"sizes":["S","M","L"],"badge":"Top","image":"/products/placeholder-retro.jpg"}
+]
