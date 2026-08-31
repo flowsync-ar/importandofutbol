@@ -19,4 +19,9 @@ describe("Catalog", () => {
     fireEvent.change(screen.getByLabelText("Buscar camisetas"), { target: { value: "Inter Miami" } });
     expect(screen.getByText(/no encontramos camisetas/i)).toBeVisible();
   });
+
+  it("lists extra categories from the store", () => {
+    render(<StoreProvider><Catalog products={products} categoryNames={["Niños"]} /></StoreProvider>);
+    expect(screen.getByRole("option", { name: "Niños" })).toBeInTheDocument();
+  });
 });

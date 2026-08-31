@@ -1,15 +1,15 @@
 "use client";
 
-import { Eye, EyeOff, KeyRound } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PasswordInput } from "@/components/password-input";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
-  const [visible, setVisible] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -28,5 +28,5 @@ export default function ChangePasswordPage() {
     router.replace("/admin"); router.refresh();
   }
 
-  return <section className="admin-login"><form onSubmit={submit}><KeyRound className="password-icon"/><span className="eyebrow dark">PRIMER INGRESO</span><h1>Creá una nueva contraseña</h1><p>Por seguridad, reemplazá la contraseña temporal antes de usar el panel.</p><label>Nueva contraseña<div className="password-field"><input type={visible ? "text" : "password"} value={password} onChange={(event)=>setPassword(event.target.value)} required autoComplete="new-password"/><button type="button" onClick={()=>setVisible((current)=>!current)} aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}>{visible ? <EyeOff/> : <Eye/>}</button></div></label><label>Repetir contraseña<input type={visible ? "text" : "password"} value={confirmation} onChange={(event)=>setConfirmation(event.target.value)} required autoComplete="new-password"/></label>{error && <div className="form-error" role="alert">{error}</div>}<button className="button gold full" disabled={saving}>{saving ? "Guardando…" : "Cambiar contraseña"}</button></form></section>;
+  return <section className="admin-login"><form onSubmit={submit}><KeyRound className="password-icon"/><span className="eyebrow dark">PRIMER INGRESO</span><h1>Creá una nueva contraseña</h1><p>Por seguridad, reemplazá la contraseña temporal antes de usar el panel.</p><label htmlFor="new-password">Nueva contraseña</label><PasswordInput id="new-password" value={password} onChange={setPassword} autoComplete="new-password"/><label htmlFor="confirm-password">Repetir contraseña</label><PasswordInput id="confirm-password" value={confirmation} onChange={setConfirmation} autoComplete="new-password"/>{error && <div className="form-error" role="alert">{error}</div>}<button className="button gold full" disabled={saving}>{saving ? "Guardando…" : "Cambiar contraseña"}</button></form></section>;
 }
