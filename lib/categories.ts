@@ -6,8 +6,34 @@ import { parseSizes, type Product } from "@/lib/types";
 import { productImageList } from "@/lib/product-images";
 import jsonProducts from "@/data/products.json";
 
+const productColumns = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title";
+const productColumnsFallback = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active";
+
+function mapStoreProduct(row: {
+  id: string; slug: string; name: string; category: string; team: string;
+  price: number | null; sizes: string[] | string | null; badge: string | null;
+  image_url?: string | null; image_urls?: string[] | null;
+  featured?: boolean | null; featured_title?: string | null;
+}): Product {
+  const images = productImageList(row);
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    category: row.category,
+    team: row.team,
+    price: row.price,
+    sizes: parseSizes(row.sizes),
+    badge: row.badge,
+    image: images[0] || "",
+    images,
+    featured: Boolean(row.featured),
+    featured_title: row.featured_title || null,
+  };
+}
+
 export type { Category } from "@/lib/category";
-export { RESERVED_CATEGORY_SLUGS, slugifyCategory, storeNavLinks, storeShopLinks } from "@/lib/category";
+export { RESERVED_CATEGORY_SLUGS, slugifyCategory, storeNavLinks, storeShopLinks, storeCategoryLinks } from "@/lib/category";
 
 const fallbackCategories: Category[] = [
   { id: "selecciones", name: "Selecciones", slug: "selecciones", sort_order: 1 },
@@ -26,25 +52,11 @@ export const getCategories = cache(async (): Promise<Category[]> => {
 export const getStoreProducts = cache(async (): Promise<Product[]> => {
   if (!supabasePublicEnv()) return jsonProducts as Product[];
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("products")
-    .select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active")
-    .eq("active", true)
-    .order("created_at", { ascending: false });
+  let { data } = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
+  if (!data) {
+    const fallback = await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false });
+    data = fallback.data;
+  }
   if (!data?.length) return jsonProducts as Product[];
-  return data.map((row) => {
-    const images = productImageList(row);
-    return {
-      id: row.id,
-      slug: row.slug,
-      name: row.name,
-      category: row.category,
-      team: row.team,
-      price: row.price,
-      sizes: parseSizes(row.sizes),
-      badge: row.badge,
-      image: images[0] || "",
-      images,
-    };
-  });
+  return data.map((row) => mapStoreProduct(row));
 });

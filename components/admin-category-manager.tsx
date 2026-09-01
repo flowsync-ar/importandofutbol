@@ -57,7 +57,7 @@ export function AdminCategoryManager({
   }
 
   return <>
-    <header><div><span>CATÁLOGO</span><h1>Categorías</h1><p>Creá las colecciones que se ven en el menú y en los productos.</p></div></header>
+    <header><div><span>CATÁLOGO</span><h1>Categorías</h1><p>Se usan en el producto y en el menú Categorías. No saturan la barra de arriba.</p></div></header>
     {message && <div className="admin-message">{message}<button type="button" onClick={() => setMessage("")}>Cerrar</button></div>}
     {error && <div className="form-error" role="alert">{error}</div>}
     <form className="category-form" onSubmit={add}>

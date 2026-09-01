@@ -10,6 +10,8 @@ create table if not exists public.products (
   badge text,
   image_url text,
   image_urls text[] not null default '{}',
+  featured boolean not null default false,
+  featured_title text,
   active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -44,6 +46,8 @@ grant insert, update, delete on public.products to authenticated;
 -- Categories: also run supabase/categories.sql
 -- Customers: also run supabase/customers.sql
 
+-- Product highlights: also run supabase/featured.sql
+-- Extra admin users: also run supabase/add-admin.sql
 -- Product images: also run supabase/storage.sql to create the public bucket and upload policies.
 
 -- After creating the admin user in Authentication → Users, replace the email:

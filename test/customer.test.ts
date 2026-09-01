@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blankToNull, whatsappHref } from "@/lib/customer";
+import { blankToNull, STORE_WHATSAPP, storeWhatsAppHref, whatsappHref } from "@/lib/customer";
 
 describe("whatsappHref", () => {
   it("keeps only digits for the chat link", () => {
@@ -8,6 +8,11 @@ describe("whatsappHref", () => {
 
   it("returns null without a number", () => {
     expect(whatsappHref("  ")).toBeNull();
+  });
+
+  it("opens the store WhatsApp chat with the message", () => {
+    expect(storeWhatsAppHref("Hola")).toBe(`https://wa.me/5492954827189?text=${encodeURIComponent("Hola")}`);
+    expect(STORE_WHATSAPP).toContain("2954");
   });
 });
 
