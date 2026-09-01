@@ -24,13 +24,16 @@ export function slugifyCategory(name: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export function storeNavLinks(categories: Pick<Category, "name" | "slug">[]) {
+export function storeNavLinks(_categories: Pick<Category, "name" | "slug">[] = []) {
   return [
     { label: "Inicio", href: "/" },
     { label: "Camisetas", href: "/camisetas" },
-    ...categories.map((category) => ({ label: category.name, href: `/${category.slug}` })),
     { label: "Contacto", href: "/contacto" },
   ];
+}
+
+export function storeCategoryLinks(categories: Pick<Category, "name" | "slug">[]) {
+  return categories.map((category) => ({ label: category.name, href: `/${category.slug}` }));
 }
 
 export function storeShopLinks(categories: Pick<Category, "name" | "slug">[]) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { slugifyCategory, storeNavLinks } from "@/lib/category";
-import { parseSizes } from "@/lib/types";
+import { slugifyCategory, storeCategoryLinks, storeNavLinks } from "@/lib/category";
+import { featuredProducts, parseSizes } from "@/lib/types";
 
 describe("slugifyCategory", () => {
   it("turns names into URL slugs", () => {
@@ -10,8 +10,14 @@ describe("slugifyCategory", () => {
 });
 
 describe("storeNavLinks", () => {
-  it("keeps shop pages around the catalog categories", () => {
-    expect(storeNavLinks([{ name: "Niños", slug: "ninos" }]).map((link) => link.href)).toEqual(["/", "/camisetas", "/ninos", "/contacto"]);
+  it("keeps the header to home, catalog and contact", () => {
+    expect(storeNavLinks([{ name: "Niños", slug: "ninos" }]).map((link) => link.href)).toEqual(["/", "/camisetas", "/contacto"]);
+  });
+});
+
+describe("storeCategoryLinks", () => {
+  it("lists admin categories for the dropdown only", () => {
+    expect(storeCategoryLinks([{ name: "Niños", slug: "ninos" }])).toEqual([{ label: "Niños", href: "/ninos" }]);
   });
 });
 
@@ -20,5 +26,15 @@ describe("parseSizes", () => {
     expect(parseSizes("S, M, L, XL")).toEqual(["S", "M", "L", "XL"]);
     expect(parseSizes(["M", " L "])).toEqual(["M", "L"]);
     expect(parseSizes("S,")).toEqual(["S"]);
+  });
+});
+
+describe("featuredProducts", () => {
+  it("keeps only highlighted products for the home carousel", () => {
+    const products = [
+      { id: "1", slug: "a", name: "A", category: "Clubes", team: "A", price: null, sizes: ["M"], badge: null, image: "", featured: true, featured_title: "Mundial" },
+      { id: "2", slug: "b", name: "B", category: "Clubes", team: "B", price: null, sizes: ["M"], badge: null, image: "" },
+    ];
+    expect(featuredProducts(products).map((product) => product.featured_title)).toEqual(["Mundial"]);
   });
 });
