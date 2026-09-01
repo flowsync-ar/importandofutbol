@@ -52,11 +52,8 @@ export const getCategories = cache(async (): Promise<Category[]> => {
 export const getStoreProducts = cache(async (): Promise<Product[]> => {
   if (!supabasePublicEnv()) return jsonProducts as Product[];
   const supabase = await createClient();
-  let { data } = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
-  if (!data) {
-    const fallback = await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false });
-    data = fallback.data;
-  }
-  if (!data?.length) return jsonProducts as Product[];
-  return data.map((row) => mapStoreProduct(row));
+  const featured = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
+  const rows = featured.data ?? (await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false })).data;
+  if (!rows?.length) return jsonProducts as Product[];
+  return rows.map((row) => mapStoreProduct(row));
 });

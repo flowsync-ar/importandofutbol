@@ -16,10 +16,10 @@ export default async function AdminPage() {
   const userId = String(claimsData.claims.sub);
   const { data: profile } = await supabase.from("admin_profiles").select("must_change_password").eq("user_id",userId).maybeSingle();
   if (profile?.must_change_password) redirect("/admin/change-password");
-  let productsResult = await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title").order("created_at",{ascending:false});
-  if (productsResult.error) {
-    productsResult = await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active").order("created_at",{ascending:false});
-  }
+  const featuredQuery = await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title").order("created_at",{ascending:false});
+  const productsResult = featuredQuery.error
+    ? await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active").order("created_at",{ascending:false})
+    : featuredQuery;
   const [categoriesResult, customersResult, sizeGuideResult] = await Promise.all([
     supabase.from("categories").select("id,name,slug,sort_order").order("sort_order").order("name"),
     supabase.from("customers").select("id,name,phone,email,notes").order("created_at",{ascending:false}),
