@@ -33,8 +33,16 @@ describe("featuredProducts", () => {
   it("keeps only highlighted products for the home carousel", () => {
     const products = [
       { id: "1", slug: "a", name: "A", category: "Clubes", team: "A", price: null, sizes: ["M"], badge: null, image: "", featured: true, featured_title: "Mundial" },
-      { id: "2", slug: "b", name: "B", category: "Clubes", team: "B", price: null, sizes: ["M"], badge: null, image: "" },
+      { id: "2", slug: "b", name: "B", category: "Clubes", team: "B", price: null, sizes: ["M"], badge: null, image: "/photos/b.jpg" },
     ];
     expect(featuredProducts(products).map((product) => product.featured_title)).toEqual(["Mundial"]);
+  });
+
+  it("falls back to catalog photos when nothing is starred", () => {
+    const products = [
+      { id: "1", slug: "a", name: "A", category: "Clubes", team: "A", price: null, sizes: ["M"], badge: null, image: "/products/placeholder-club-1.jpg" },
+      { id: "2", slug: "b", name: "B", category: "Clubes", team: "B", price: null, sizes: ["M"], badge: null, image: "https://cdn.example/b.jpg" },
+    ];
+    expect(featuredProducts(products).map((product) => product.id)).toEqual(["2"]);
   });
 });
