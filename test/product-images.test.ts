@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { productImageList, validateProductImage } from "@/lib/product-images";
+import { productImageList, productPhotos, validateProductImage } from "@/lib/product-images";
 
 describe("validateProductImage", () => {
   it("accepts a jpeg under the size limit", () => {
@@ -13,5 +13,12 @@ describe("validateProductImage", () => {
   it("prefers the image list over a single cover url", () => {
     expect(productImageList({ image_url: "a.jpg", image_urls: ["b.jpg", "c.jpg"] })).toEqual(["b.jpg", "c.jpg"]);
     expect(productImageList({ image_url: "a.jpg", image_urls: [] })).toEqual(["a.jpg"]);
+  });
+});
+
+describe("productPhotos", () => {
+  it("uses uploaded urls and skips mock placeholders", () => {
+    expect(productPhotos({ image: "https://cdn.example/real.jpg", images: ["https://cdn.example/real.jpg"] })).toEqual(["https://cdn.example/real.jpg"]);
+    expect(productPhotos({ image: "/products/placeholder-argentina.jpg" })).toEqual([]);
   });
 });

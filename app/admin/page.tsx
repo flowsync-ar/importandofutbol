@@ -3,10 +3,12 @@ import { AdminProductManager, type AdminProduct } from "@/components/admin-produ
 import type { Category } from "@/lib/category";
 import type { Customer } from "@/lib/customer";
 import { createClient } from "@/lib/supabase/server";
+import { supabasePublicEnv } from "@/lib/supabase/env";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  if (!supabasePublicEnv()) redirect("/admin/login");
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
   if (claimsData?.claims?.app_metadata?.role !== "admin") redirect("/admin/login");

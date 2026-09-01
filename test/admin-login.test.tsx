@@ -7,6 +7,9 @@ const maybeSingle = vi.fn();
 
 vi.mock("next/image", () => ({ default: (props: { alt: string }) => <img alt={props.alt} /> }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }));
+vi.mock("@/lib/supabase/env", () => ({
+  supabasePublicEnv: () => ({ url: "https://example.supabase.co", key: "test-key" }),
+}));
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: { signInWithPassword, signOut },

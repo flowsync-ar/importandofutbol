@@ -41,6 +41,11 @@ export function productImageList(product: { image_url?: string | null; image_url
   return product.image_url ? [product.image_url] : [];
 }
 
+export function productPhotos(product: { image?: string | null; images?: string[] | null }) {
+  const list = product.images?.length ? product.images.filter(Boolean) : product.image ? [product.image] : [];
+  return list.filter((src) => !src.includes("placeholder"));
+}
+
 export async function uploadProductImages(supabase: SupabaseClient, files: File[], slug: string) {
   const results = await Promise.all(files.map((file) => uploadProductImage(supabase, file, slug)));
   const failed = results.find((result) => result.error);

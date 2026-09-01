@@ -1,7 +1,9 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { supabasePublicEnv } from "@/lib/supabase/env";
 import type { Category } from "@/lib/category";
-import type { Product } from "@/lib/types";
+import { parseSizes, type Product } from "@/lib/types";
+import { productImageList } from "@/lib/product-images";
 import jsonProducts from "@/data/products.json";
 
 export type { Category } from "@/lib/category";
@@ -14,6 +16,7 @@ const fallbackCategories: Category[] = [
 ];
 
 export const getCategories = cache(async (): Promise<Category[]> => {
+  if (!supabasePublicEnv()) return fallbackCategories;
   const supabase = await createClient();
   const { data, error } = await supabase.from("categories").select("id,name,slug,sort_order").order("sort_order").order("name");
   if (error) return fallbackCategories;
@@ -21,6 +24,7 @@ export const getCategories = cache(async (): Promise<Category[]> => {
 });
 
 export const getStoreProducts = cache(async (): Promise<Product[]> => {
+  if (!supabasePublicEnv()) return jsonProducts as Product[];
   const supabase = await createClient();
   const { data } = await supabase
     .from("products")
@@ -28,15 +32,19 @@ export const getStoreProducts = cache(async (): Promise<Product[]> => {
     .eq("active", true)
     .order("created_at", { ascending: false });
   if (!data?.length) return jsonProducts as Product[];
-  return data.map((row) => ({
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    category: row.category,
-    team: row.team,
-    price: row.price,
-    sizes: row.sizes,
-    badge: row.badge,
-    image: (row.image_urls?.[0] || row.image_url || "") as string,
-  }));
+  return data.map((row) => {
+    const images = productImageList(row);
+    return {
+      id: row.id,
+      slug: row.slug,
+      name: row.name,
+      category: row.category,
+      team: row.team,
+      price: row.price,
+      sizes: parseSizes(row.sizes),
+      badge: row.badge,
+      image: images[0] || "",
+      images,
+    };
+  });
 });

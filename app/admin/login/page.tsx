@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PasswordInput } from "@/components/password-input";
 import { createClient } from "@/lib/supabase/client";
+import { supabasePublicEnv } from "@/lib/supabase/env";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const configured = Boolean(supabasePublicEnv());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,6 +20,11 @@ export default function AdminLoginPage() {
     event.preventDefault();
     setLoading(true);
     setError("");
+    if (!supabasePublicEnv()) {
+      setError("Falta configurar Supabase en .env.local.");
+      setLoading(false);
+      return;
+    }
     try {
       const supabase = createClient();
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
@@ -51,11 +58,12 @@ export default function AdminLoginPage() {
     <span className="eyebrow dark">ACCESO PRIVADO</span>
     <h1>Panel administrador</h1>
     <p>Ingresá con la cuenta autorizada para gestionar el catálogo.</p>
+    {!configured && <div className="form-error" role="alert">Falta configurar Supabase. Completá <code>.env.local</code> con la URL y la publishable key del proyecto y reiniciá <code>npm run dev</code>.</div>}
     <label htmlFor="admin-email"><Mail/> Correo</label>
     <input id="admin-email" type="email" value={email} onChange={(event) => { setEmail(event.target.value); if (error) setError(""); }} required autoComplete="email" aria-invalid={Boolean(error)} className={error ? "invalid" : undefined}/>
     <label htmlFor="admin-password"><LockKeyhole/> Contraseña</label>
     <PasswordInput id="admin-password" value={password} onChange={(value) => { setPassword(value); if (error) setError(""); }} autoComplete="current-password" invalid={Boolean(error)}/>
     {error && <div className="form-error" role="alert">{error}</div>}
-    <button className="button gold full" disabled={loading}>{loading ? "Ingresando…" : "Ingresar"}</button>
+    <button className="button gold full" disabled={loading || !configured}>{loading ? "Ingresando…" : "Ingresar"}</button>
   </form></section>;
 }
