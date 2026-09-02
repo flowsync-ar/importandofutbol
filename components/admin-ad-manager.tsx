@@ -64,7 +64,7 @@ function AdEditor({ ad, onSaved }: { ad: Ad; onSaved: (ad: Ad) => void }) {
     </div>
     <label>Título<input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Opcional"/></label>
     <label>Descripción<textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Texto corto"/></label>
-    <label>Link al hacer click en la foto<input value={form.href} onChange={(event) => setForm((current) => ({ ...current, href: event.target.value }))} placeholder="https://…"/></label>
+    <label>Link al hacer click<input value={form.href} onChange={(event) => setForm((current) => ({ ...current, href: event.target.value }))} placeholder="https://…"/></label>
     <label className="checkbox"><input type="checkbox" checked={form.active} onChange={(event) => setForm((current) => ({ ...current, active: event.target.checked }))}/> Mostrar en la tienda</label>
     {message && <div className="admin-message">{message}</div>}
     {error && <div className="form-error" role="alert">{error}</div>}
