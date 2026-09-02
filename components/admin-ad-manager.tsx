@@ -11,7 +11,7 @@ const imageAccept = PRODUCT_IMAGE_TYPES.join(",");
 export function AdminAdManager({ ads, onChange }: { ads: Ad[]; onChange: (ads: Ad[]) => void }) {
   const slots = AD_SLOTS.map((slot) => ads.find((ad) => ad.slot === slot.id) ?? emptyAd(slot.id));
   return <>
-    <header><div><span>TIENDA</span><h1>Publicidad</h1><p>Dos avisos chicos: una foto, un título, un texto y un link. Si no está activo, no se muestra.</p></div></header>
+    <header><div><span>TIENDA</span><h1>Publicidad</h1><p>Dos avisos chicos. En el texto, seleccioná y tocá Negrita.</p></div></header>
     <div className="ad-admin-grid">{slots.map((ad) => <AdEditor key={ad.slot} ad={ad} onSaved={(saved) => onChange([...ads.filter((item) => item.slot !== saved.slot), saved])}/>)}</div>
   </>;
 }
@@ -23,6 +23,17 @@ function AdEditor({ ad, onSaved }: { ad: Ad; onSaved: (ad: Ad) => void }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
+  const descriptionInput = useRef<HTMLTextAreaElement>(null);
+
+  function makeBold() {
+    const field = descriptionInput.current;
+    if (!field) return;
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    if (start === end) return;
+    const value = form.description;
+    setForm((current) => ({ ...current, description: `${value.slice(0, start)}**${value.slice(start, end)}**${value.slice(end)}` }));
+  }
 
   async function chooseImage(file: File | undefined) {
     if (!file) return;
@@ -63,7 +74,7 @@ function AdEditor({ ad, onSaved }: { ad: Ad; onSaved: (ad: Ad) => void }) {
       </div>
     </div>
     <label>Título<input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Opcional"/></label>
-    <label>Descripción<textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Texto corto"/></label>
+    <label>Descripción<small>Seleccioná una frase y tocá Negrita.</small><textarea ref={descriptionInput} value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Texto corto"/><button type="button" className="text-button" onClick={makeBold}>Negrita</button></label>
     <label>Link al hacer click<input value={form.href} onChange={(event) => setForm((current) => ({ ...current, href: event.target.value }))} placeholder="https://…"/></label>
     <label className="checkbox"><input type="checkbox" checked={form.active} onChange={(event) => setForm((current) => ({ ...current, active: event.target.checked }))}/> Mostrar en la tienda</label>
     {message && <div className="admin-message">{message}</div>}

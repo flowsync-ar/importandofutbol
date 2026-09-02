@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adHref, isVisibleAd, type Ad } from "@/lib/ads";
+import { adHref, adTextParts, isVisibleAd, type Ad } from "@/lib/ads";
 
 describe("adHref", () => {
   it("adds https when the admin skips it", () => {
@@ -16,5 +16,16 @@ describe("isVisibleAd", () => {
     expect(isVisibleAd(ad)).toBe(true);
     expect(isVisibleAd({ ...ad, active: false })).toBe(false);
     expect(isVisibleAd({ ...ad, image_url: null })).toBe(false);
+  });
+});
+
+describe("adTextParts", () => {
+  it("marks **text** as bold", () => {
+    expect(adTextParts("vivirlo en la **cancha** es un sueño")).toEqual([
+      { bold: false, text: "vivirlo en la " },
+      { bold: true, text: "cancha" },
+      { bold: false, text: " es un sueño" },
+    ]);
+    expect(adTextParts("sin marcas")).toEqual([{ bold: false, text: "sin marcas" }]);
   });
 });

@@ -33,3 +33,16 @@ export function emptyAd(slot: AdSlot): Ad {
 export function adBySlot(ads: Ad[], slot: AdSlot) {
   return ads.find((ad) => ad.slot === slot) ?? emptyAd(slot);
 }
+
+export function adTextParts(text: string) {
+  const parts: { bold: boolean; text: string }[] = [];
+  const marks = /\*\*([^*]+)\*\*/g;
+  let last = 0;
+  for (const match of text.matchAll(marks)) {
+    if (match.index > last) parts.push({ bold: false, text: text.slice(last, match.index) });
+    parts.push({ bold: true, text: match[1] });
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) parts.push({ bold: false, text: text.slice(last) });
+  return parts;
+}
