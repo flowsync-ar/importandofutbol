@@ -2,10 +2,12 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import type { CartItem } from "@/lib/types";
+import { STORE_WHATSAPP } from "@/lib/customer";
 
 type StoreContextValue = {
   favorites: string[];
   cart: CartItem[];
+  storePhone: string;
   toggleFavorite: (id: string) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string, size: string) => void;
@@ -18,7 +20,7 @@ function readStorage<T>(key: string, fallback: T): T {
   try { return JSON.parse(localStorage.getItem(key) ?? "") as T; } catch { return fallback; }
 }
 
-export function StoreProvider({ children }: { children: React.ReactNode }) {
+export function StoreProvider({ children, storePhone = STORE_WHATSAPP }: { children: React.ReactNode; storePhone?: string }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
@@ -48,7 +50,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return next;
   });
 
-  return <StoreContext.Provider value={{ favorites, cart, toggleFavorite, addToCart, removeFromCart }}>{children}</StoreContext.Provider>;
+  return <StoreContext.Provider value={{ favorites, cart, storePhone, toggleFavorite, addToCart, removeFromCart }}>{children}</StoreContext.Provider>;
 }
 
 export function useStore() {

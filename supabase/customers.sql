@@ -38,3 +38,19 @@ to authenticated
 using ((select auth.jwt()->'app_metadata'->>'role') = 'admin');
 
 grant select, insert, update, delete on public.customers to authenticated;
+grant insert on public.customers to anon;
+
+-- Storefront consults: anyone can leave name + WhatsApp. Admins still own the list.
+drop policy if exists "Public can leave consult leads" on public.customers;
+create policy "Public can leave consult leads"
+on public.customers for insert
+to anon, authenticated
+with check (
+  char_length(trim(name)) between 2 and 80
+  and phone is not null
+  and char_length(phone) between 8 and 15
+  and email is null
+  and char_length(coalesce(notes, '')) <= 500
+);
+
+create unique index if not exists customers_phone_unique on public.customers (phone);

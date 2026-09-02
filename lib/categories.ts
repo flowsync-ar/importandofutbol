@@ -33,7 +33,7 @@ function mapStoreProduct(row: {
 }
 
 export type { Category } from "@/lib/category";
-export { RESERVED_CATEGORY_SLUGS, slugifyCategory, storeNavLinks, storeShopLinks, storeCategoryLinks } from "@/lib/category";
+export { RESERVED_CATEGORY_SLUGS, slugifyCategory, slugifyProduct, storeNavLinks, storeShopLinks, storeCategoryLinks } from "@/lib/category";
 
 const fallbackCategories: Category[] = [
   { id: "selecciones", name: "Selecciones", slug: "selecciones", sort_order: 1 },

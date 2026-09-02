@@ -24,6 +24,10 @@ export function slugifyCategory(name: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+export function slugifyProduct(name: string, team = "") {
+  return slugifyCategory(name) || slugifyCategory(team) || "producto";
+}
+
 export function storeNavLinks(_categories: Pick<Category, "name" | "slug">[] = []) {
   return [
     { label: "Inicio", href: "/" },

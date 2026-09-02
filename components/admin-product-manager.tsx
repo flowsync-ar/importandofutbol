@@ -1,12 +1,14 @@
 "use client";
 
-import { ImagePlus, LogOut, PackagePlus, Pencil, Ruler, Search, Star, Tags, Trash2, Users, X } from "lucide-react";
+import { ArrowUpDown, ImagePlus, LogOut, PackagePlus, Pencil, Phone, Ruler, Search, Star, Tags, Trash2, Users, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AdminCategoryManager } from "@/components/admin-category-manager";
+import { AdminContactManager } from "@/components/admin-contact-manager";
 import { AdminCustomerManager } from "@/components/admin-customer-manager";
 import { AdminSizeGuide } from "@/components/admin-size-guide";
-import type { Category } from "@/lib/category";
+import { slugifyProduct, type Category } from "@/lib/category";
+import type { ContactChannel } from "@/lib/contacts";
 import type { Customer } from "@/lib/customer";
 import type { SizeGuideRow } from "@/lib/size-guide";
 import { createClient } from "@/lib/supabase/client";
@@ -24,18 +26,25 @@ type PendingImage = { id: string; file: File; preview: string };
 const emptyProduct: Omit<AdminProduct, "id"> = { slug:"", name:"", category:"Clubes", team:"", price:null, sizes:[...CATALOG_SIZES], badge:null, image_url:null, image_urls:[], active:true, featured:false, featured_title:null };
 const imageAccept = PRODUCT_IMAGE_TYPES.join(",");
 
-export function AdminProductManager({ initialProducts, initialCategories, initialCustomers, initialSizeGuide, email }: { initialProducts: AdminProduct[]; initialCategories: Category[]; initialCustomers: Customer[]; initialSizeGuide: SizeGuideRow[]; email: string }) {
+export function AdminProductManager({ initialProducts, initialCategories, initialCustomers, initialSizeGuide, initialContacts, email }: { initialProducts: AdminProduct[]; initialCategories: Category[]; initialCustomers: Customer[]; initialSizeGuide: SizeGuideRow[]; initialContacts: ContactChannel[]; email: string }) {
   const router = useRouter();
-  const [section, setSection] = useState<"products" | "categories" | "customers" | "sizes">("products");
+  const [section, setSection] = useState<"products" | "categories" | "customers" | "sizes" | "contacts">("products");
   const [products, setProducts] = useState(initialProducts);
   const [categories, setCategories] = useState(initialCategories);
   const [customers, setCustomers] = useState(initialCustomers);
   const [sizeGuide, setSizeGuide] = useState(initialSizeGuide);
+  const [contacts, setContacts] = useState(initialContacts);
   const [query, setQuery] = useState("");
+  const [categorySort, setCategorySort] = useState<"az" | "za" | null>(null);
   const [editing, setEditing] = useState<AdminProduct | null>(null);
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState("");
-  const filtered = useMemo(() => products.filter((product) => `${product.name} ${product.team}`.toLowerCase().includes(query.toLowerCase())), [products, query]);
+  const filtered = useMemo(() => {
+    const rows = products.filter((product) => `${product.name} ${product.team}`.toLowerCase().includes(query.toLowerCase()));
+    if (!categorySort) return rows;
+    const dir = categorySort === "az" ? 1 : -1;
+    return [...rows].sort((a, b) => a.category.localeCompare(b.category, "es") * dir || a.name.localeCompare(b.name, "es"));
+  }, [products, query, categorySort]);
   const blankProduct = { ...emptyProduct, category: categories[0]?.name ?? "" };
 
   async function signOut() { const supabase = createClient(); await supabase.auth.signOut(); router.replace("/admin/login"); router.refresh(); }
@@ -51,9 +60,7 @@ export function AdminProductManager({ initialProducts, initialCategories, initia
     setEditing(null); setCreating(false); setMessage("Cambios guardados.");
   }
 
-  return <div className="admin-shell"><aside className="admin-sidebar"><div><strong>IMPORTANDO FÚTBOL</strong><span>Administración</span></div><nav><button type="button" className={section === "products" ? "active" : ""} onClick={() => setSection("products")}><PackagePlus/> Productos</button><button type="button" className={section === "categories" ? "active" : ""} onClick={() => setSection("categories")}><Tags/> Categorías</button><button type="button" className={section === "sizes" ? "active" : ""} onClick={() => setSection("sizes")}><Ruler/> Talles</button><button type="button" className={section === "customers" ? "active" : ""} onClick={() => setSection("customers")}><Users/> Clientes</button></nav><button onClick={signOut}><LogOut/> Cerrar sesión</button></aside><main className="admin-main">{section === "categories" ? <AdminCategoryManager categories={categories} usedNames={products.map((product) => product.category)} onChange={setCategories}/> : section === "sizes" ? <AdminSizeGuide rows={sizeGuide} onChange={setSizeGuide}/> : section === "customers" ? <AdminCustomerManager customers={customers} onChange={setCustomers}/> : <><header><div><span>CATÁLOGO</span><h1>Productos</h1><p>Sesión iniciada como {email}</p></div><button className="button gold" onClick={() => setCreating(true)}><PackagePlus/> Nuevo producto</button></header>{message && <div className="admin-message">{message}<button onClick={() => setMessage("")}><X/></button></div>}<div className="admin-toolbar"><Search/><input aria-label="Buscar productos" placeholder="Buscar por nombre o equipo" value={query} onChange={(event) => setQuery(event.target.value)}/><strong>{filtered.length} productos</strong></div><div className="admin-table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Talles</th><th>Precio</th><th>Estado</th><th/></tr></thead><tbody>{filtered.map((product) => { const images = productImageList(product); const cover = images[0]; return <tr key={product.id}><td><div className="product-cell">{cover ? <img src={cover} alt="" className="admin-thumb"/> : <span className="admin-thumb empty"/>}<div><strong>{product.name}</strong><span>{product.team}{images.length > 1 ? ` · ${images.length} fotos` : ""}{product.featured ? " · Destacada" : ""}</span></div></div></td><td>{product.category}</td><td>{(product.sizes ?? []).join(", ")}</td><td>{product.price === null ? "A consultar" : formatPrice(product.price)}</td><td><i className={product.active ? "status active" : "status"}>{product.active ? "Publicado" : "Oculto"}</i></td><td><div className="row-actions"><button onClick={() => setEditing(product)} aria-label={`Editar ${product.name}`}><Pencil/></button><button className="danger" onClick={() => remove(product)} aria-label={`Eliminar ${product.name}`}><Trash2/></button></div></td></tr>; })}</tbody></table>{!filtered.length && <div className="admin-empty">No hay productos para mostrar.</div>}</div>
-        <details className="admin-help"><summary>SQL de Supabase (carrusel y guía de talles)</summary><p>Entrá a <a href="https://supabase.com/dashboard/project/mrqgpgielwqbtcqbrwwc/sql/new" target="_blank" rel="noreferrer">SQL Editor del proyecto</a>, pegá el contenido de <code>supabase/featured.sql</code> y tocá RUN. Es el proyecto <code>mrqgpgielwqbtcqbrwwc</code>, el mismo de esta tienda.</p></details>
-        <details className="admin-help"><summary>¿Necesitás otro administrador?</summary><p>En Supabase: Authentication → Users → Invite / Add user (con su mail y una contraseña). Después, en SQL Editor, ejecutá <code>supabase/add-admin.sql</code> reemplazando el mail. Esa persona entra en <code>/admin/login</code> y cambia la contraseña.</p></details>
+  return <div className="admin-shell"><aside className="admin-sidebar"><div><strong>IMPORTANDO FÚTBOL</strong><span>Administración</span></div><nav><button type="button" className={section === "products" ? "active" : ""} onClick={() => setSection("products")}><PackagePlus/> Productos</button><button type="button" className={section === "categories" ? "active" : ""} onClick={() => setSection("categories")}><Tags/> Categorías</button><button type="button" className={section === "sizes" ? "active" : ""} onClick={() => setSection("sizes")}><Ruler/> Talles</button><button type="button" className={section === "contacts" ? "active" : ""} onClick={() => setSection("contacts")}><Phone/> Contactos</button><button type="button" className={section === "customers" ? "active" : ""} onClick={() => setSection("customers")}><Users/> Clientes</button></nav><button onClick={signOut}><LogOut/> Cerrar sesión</button></aside><main className="admin-main">{section === "categories" ? <AdminCategoryManager categories={categories} usedNames={products.map((product) => product.category)} onChange={setCategories}/> : section === "sizes" ? <AdminSizeGuide rows={sizeGuide} onChange={setSizeGuide}/> : section === "contacts" ? <AdminContactManager contacts={contacts} onChange={setContacts}/> : section === "customers" ? <AdminCustomerManager customers={customers} onChange={setCustomers}/> : <><header><div><span>CATÁLOGO</span><h1>Productos</h1><p>Sesión iniciada como {email}</p></div><button className="button gold" onClick={() => setCreating(true)}><PackagePlus/> Nuevo producto</button></header>{message && <div className="admin-message">{message}<button onClick={() => setMessage("")}><X/></button></div>}<div className="admin-toolbar"><Search/><input aria-label="Buscar productos" placeholder="Buscar por nombre o equipo" value={query} onChange={(event) => setQuery(event.target.value)}/><strong>{filtered.length} productos</strong></div><div className="admin-table-wrap"><table><thead><tr><th className="star-col" title="Carrusel del inicio"><Star/></th><th>Producto</th><th><button type="button" className="sort-th" onClick={() => setCategorySort((current) => current === "az" ? "za" : "az")}>Categoría <ArrowUpDown/>{categorySort === "az" ? " A-Z" : categorySort === "za" ? " Z-A" : ""}</button></th><th>Talles</th><th>Precio</th><th>Estado</th><th/></tr></thead><tbody>{filtered.map((product) => { const images = productImageList(product); const cover = images[0]; return <tr key={product.id}><td className="star-col">{product.featured ? <Star className="carousel-star" fill="currentColor" aria-label="En el carrusel"/> : null}</td><td><div className="product-cell">{cover ? <img src={cover} alt="" className="admin-thumb"/> : <span className="admin-thumb empty"/>}<div className="product-copy"><strong>{product.name}</strong>{product.team && product.team.toLowerCase() !== product.name.toLowerCase() ? <span>{product.team}</span> : null}{images.length > 1 ? <span>{images.length} fotos</span> : null}</div></div></td><td>{product.category}</td><td>{(product.sizes ?? []).join(", ")}</td><td>{product.price === null ? "A consultar" : formatPrice(product.price)}</td><td><i className={product.active ? "status active" : "status"}>{product.active ? "Publicado" : "Oculto"}</i></td><td><div className="row-actions"><button onClick={() => setEditing(product)} aria-label={`Editar ${product.name}`}><Pencil/></button><button className="danger" onClick={() => remove(product)} aria-label={`Eliminar ${product.name}`}><Trash2/></button></div></td></tr>; })}</tbody></table>{!filtered.length && <div className="admin-empty">No hay productos para mostrar.</div>}</div>
         </>}</main>{(editing || creating) && <ProductEditor product={editing ?? blankProduct} categories={categories} onClose={() => { setEditing(null); setCreating(false); }} onSaved={saved}/>}</div>;
 }
 
@@ -116,7 +123,7 @@ function ProductEditor({ product, categories, onClose, onSaved }: { product: Adm
     const sizes = CATALOG_SIZES.filter((size) => selectedSizes.has(size));
     if (!sizes.length) { setError("Marcá al menos un talle."); setSaving(false); return; }
     const supabase = createClient();
-    const slug = form.slug.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+    const slug = "id" in product ? (form.slug || slugifyProduct(form.name, form.team)) : slugifyProduct(form.name, form.team);
     const uploaded = pendingImages.length
       ? await uploadProductImages(supabase, pendingImages.map((image) => image.file), slug || "producto")
       : { urls: [] as string[], error: null };
@@ -141,7 +148,6 @@ function ProductEditor({ product, categories, onClose, onSaved }: { product: Adm
     <header><div><span>{"id" in product ? "EDITAR" : "NUEVO"}</span><h2>Producto</h2></div><button type="button" onClick={onClose}><X/></button></header>
     <div className="editor-grid">
       <label className="wide">Nombre<input value={form.name} onChange={(event)=>update("name",event.target.value)} required/></label>
-      <label>Slug<input value={form.slug} onChange={(event)=>update("slug",event.target.value)} required/></label>
       <label>Equipo<input value={form.team} onChange={(event)=>update("team",event.target.value)} required/></label>
       <label>Categoría{categories.length ? <select value={form.category} onChange={(event)=>update("category",event.target.value)} required>{categories.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}{form.category && !categories.some((category) => category.name === form.category) ? <option value={form.category}>{form.category}</option> : null}</select> : <small>Creá una categoría en el menú Categorías antes de cargar un producto.</small>}</label>
       <label>Precio<input inputMode="numeric" value={form.price ?? ""} onChange={(event)=>update("price",event.target.value)} placeholder="70000"/></label>
@@ -149,8 +155,9 @@ function ProductEditor({ product, categories, onClose, onSaved }: { product: Adm
         <div className="detail-sizes editor-sizes">{CATALOG_SIZES.map((size) => <button type="button" className={selectedSizes.has(size) ? "selected" : ""} key={size} onClick={() => toggleSize(size)}>{size}</button>)}</div>
         <small>Tocá todos los talles que tengas. Podés marcar varios.</small>
       </label>
-      <label>Etiqueta<input value={form.badge ?? ""} onChange={(event)=>update("badge",event.target.value)} placeholder="Nueva, Top…"/></label>
-      <label>Título en el inicio<input value={form.featured_title ?? ""} onChange={(event)=>update("featured_title",event.target.value)} placeholder="Mundial, Nuevos ingresos…"/></label>
+      <label>Etiqueta en la ficha (opcional)<input value={form.badge ?? ""} onChange={(event)=>update("badge",event.target.value)} placeholder="Nueva, Oferta…"/><small>Texto chico sobre la foto en el catálogo. Vacío = no se muestra.</small></label>
+      <label className="checkbox"><input type="checkbox" checked={Boolean(form.featured)} onChange={(event)=>update("featured",event.target.checked)}/><Star/> Mostrar en el carrusel del inicio</label>
+      {form.featured ? <label className="wide">Texto del carrusel (opcional)<input value={form.featured_title ?? ""} onChange={(event)=>update("featured_title",event.target.value)} placeholder="Mundial, Nuevo ingreso…"/><small>Va sobre la foto grande del inicio. Vacío = usa el nombre del producto.</small></label> : null}
       <div className="wide image-field">
         <span>Imágenes del producto</span>
         <div className="image-picker">
@@ -162,7 +169,6 @@ function ProductEditor({ product, categories, onClose, onSaved }: { product: Adm
           </div>
         </div>
       </div>
-      <label className="checkbox"><input type="checkbox" checked={Boolean(form.featured)} onChange={(event)=>update("featured",event.target.checked)}/><Star/> Destacar en el inicio (carrusel)</label>
       <label className="checkbox"><input type="checkbox" checked={form.active} onChange={(event)=>update("active",event.target.checked)}/> Producto publicado</label>
     </div>
     {error && <div className="form-error">{error}</div>}

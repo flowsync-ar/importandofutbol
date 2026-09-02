@@ -42,7 +42,7 @@ export function AdminCustomerManager({
   }
 
   return <>
-    <header><div><span>TIENDA</span><h1>Clientes</h1><p>Guardá nombre, WhatsApp y notas de quienes te consultan.</p></div><button className="button gold" onClick={() => { setCreating(true); setEditing(null); }}><UserPlus/> Nuevo cliente</button></header>
+    <header><div><span>TIENDA</span><h1>Clientes</h1><p>Quedan solos los que consultan por WhatsApp desde la tienda. También podés cargar uno a mano.</p></div><button className="button gold" onClick={() => { setCreating(true); setEditing(null); }}><UserPlus/> Nuevo cliente</button></header>
     {message && <div className="admin-message">{message}<button type="button" onClick={() => setMessage("")}><X/></button></div>}
     {error && <div className="form-error" role="alert">{error}</div>}
     <div className="admin-toolbar"><Search/><input aria-label="Buscar clientes" placeholder="Buscar por nombre, teléfono o mail" value={query} onChange={(event) => setQuery(event.target.value)}/><strong>{filtered.length} clientes</strong></div>

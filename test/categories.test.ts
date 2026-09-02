@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { slugifyCategory, storeCategoryLinks, storeNavLinks } from "@/lib/category";
+import { slugifyCategory, slugifyProduct, storeCategoryLinks, storeNavLinks } from "@/lib/category";
 import { featuredProducts, formatPrice, parsePrice, parseSizes } from "@/lib/types";
 
 describe("slugifyCategory", () => {
   it("turns names into URL slugs", () => {
     expect(slugifyCategory("Premier League")).toBe("premier-league");
     expect(slugifyCategory("Niños")).toBe("ninos");
+  });
+});
+
+describe("slugifyProduct", () => {
+  it("builds the product URL from the name so the admin never types a slug", () => {
+    expect(slugifyProduct("Paris Saint-Germain", "PSG")).toBe("paris-saint-germain");
+    expect(slugifyProduct("", "Ajax")).toBe("ajax");
   });
 });
 
