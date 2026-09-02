@@ -1,6 +1,3 @@
-import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
-import { supabasePublicEnv } from "@/lib/supabase/env";
 import { STORE_WHATSAPP, whatsappHref } from "@/lib/customer";
 
 export type ContactChannel = {
@@ -39,11 +36,3 @@ export function contactHref(channel: Pick<ContactChannel, "name" | "value" | "hr
 export function storeWhatsAppFromContacts(channels: ContactChannel[]) {
   return channels.find((channel) => isWhatsAppContact(channel))?.value ?? STORE_WHATSAPP;
 }
-
-export const getContactChannels = cache(async (): Promise<ContactChannel[]> => {
-  if (!supabasePublicEnv()) return DEFAULT_CONTACTS;
-  const supabase = await createClient();
-  const { data, error } = await supabase.from("contact_channels").select("id,name,value,button_label,href,sort_order").order("sort_order").order("name");
-  if (error || !data?.length) return DEFAULT_CONTACTS;
-  return data as ContactChannel[];
-});

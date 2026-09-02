@@ -46,6 +46,7 @@ grant insert, update, delete on public.products to authenticated;
 -- Categories: also run supabase/categories.sql
 -- Customers: also run supabase/customers.sql
 -- Contacts: also run supabase/contacts.sql
+-- Ads: also run supabase/ads.sql
 
 -- Product highlights: also run supabase/featured.sql
 -- Extra admin users: also run supabase/add-admin.sql

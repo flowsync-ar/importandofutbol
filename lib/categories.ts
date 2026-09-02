@@ -5,6 +5,8 @@ import type { Category } from "@/lib/category";
 import { parsePrice, parseSizes, type Product } from "@/lib/types";
 import { productImageList } from "@/lib/product-images";
 import jsonProducts from "@/data/products.json";
+import type { Ad } from "@/lib/ads";
+import { DEFAULT_CONTACTS, type ContactChannel } from "@/lib/contacts";
 
 const productColumns = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title";
 const productColumnsFallback = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active";
@@ -56,4 +58,20 @@ export const getStoreProducts = cache(async (): Promise<Product[]> => {
   const rows = featured.data ?? (await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false })).data;
   if (!rows?.length) return jsonProducts as Product[];
   return rows.map((row) => mapStoreProduct(row));
+});
+
+export const getAds = cache(async (): Promise<Ad[]> => {
+  if (!supabasePublicEnv()) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("ads").select("id,slot,title,description,href,image_url,active");
+  if (error || !data) return [];
+  return data as Ad[];
+});
+
+export const getContactChannels = cache(async (): Promise<ContactChannel[]> => {
+  if (!supabasePublicEnv()) return DEFAULT_CONTACTS;
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("contact_channels").select("id,name,value,button_label,href,sort_order").order("sort_order").order("name");
+  if (error || !data?.length) return DEFAULT_CONTACTS;
+  return data as ContactChannel[];
 });

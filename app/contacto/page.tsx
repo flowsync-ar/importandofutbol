@@ -1,6 +1,7 @@
 import { MessageCircle } from "lucide-react";
 import { WhatsAppConsult } from "@/components/whatsapp-consult";
-import { contactHref, getContactChannels, isWhatsAppContact } from "@/lib/contacts";
+import { getContactChannels } from "@/lib/categories";
+import { contactHref, isWhatsAppContact } from "@/lib/contacts";
 
 export const dynamic = "force-dynamic";
 
