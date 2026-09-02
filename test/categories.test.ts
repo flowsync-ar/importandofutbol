@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { slugifyCategory, storeCategoryLinks, storeNavLinks } from "@/lib/category";
-import { featuredProducts, parseSizes } from "@/lib/types";
+import { featuredProducts, formatPrice, parsePrice, parseSizes } from "@/lib/types";
 
 describe("slugifyCategory", () => {
   it("turns names into URL slugs", () => {
@@ -26,6 +26,22 @@ describe("parseSizes", () => {
     expect(parseSizes("S, M, L, XL")).toEqual(["S", "M", "L", "XL"]);
     expect(parseSizes(["M", " L "])).toEqual(["M", "L"]);
     expect(parseSizes("S,")).toEqual(["S"]);
+  });
+});
+
+describe("parsePrice", () => {
+  it("does not treat Argentine thousands as decimals", () => {
+    expect(parsePrice("70000")).toBe(70000);
+    expect(parsePrice("70.000")).toBe(70000);
+    expect(parsePrice("70.000,50")).toBe(70000.5);
+    expect(Number("70.000")).toBe(70);
+  });
+});
+
+describe("formatPrice", () => {
+  it("shows seventy thousand, not seventy", () => {
+    expect(formatPrice(70000)).toMatch(/70[.\s\u00a0]000/);
+    expect(formatPrice(70000)).not.toBe("$ 70");
   });
 });
 

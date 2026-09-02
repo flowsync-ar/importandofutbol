@@ -2,7 +2,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { supabasePublicEnv } from "@/lib/supabase/env";
 import type { Category } from "@/lib/category";
-import { parseSizes, type Product } from "@/lib/types";
+import { parsePrice, parseSizes, type Product } from "@/lib/types";
 import { productImageList } from "@/lib/product-images";
 import jsonProducts from "@/data/products.json";
 
@@ -11,7 +11,7 @@ const productColumnsFallback = "id,slug,name,category,team,price,sizes,badge,ima
 
 function mapStoreProduct(row: {
   id: string; slug: string; name: string; category: string; team: string;
-  price: number | null; sizes: string[] | string | null; badge: string | null;
+  price: string | number | null; sizes: string[] | string | null; badge: string | null;
   image_url?: string | null; image_urls?: string[] | null;
   featured?: boolean | null; featured_title?: string | null;
 }): Product {
@@ -22,7 +22,7 @@ function mapStoreProduct(row: {
     name: row.name,
     category: row.category,
     team: row.team,
-    price: row.price,
+    price: parsePrice(row.price),
     sizes: parseSizes(row.sizes),
     badge: row.badge,
     image: images[0] || "",
