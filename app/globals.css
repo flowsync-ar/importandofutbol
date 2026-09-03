@@ -142,6 +142,7 @@ footer { padding:14px 0 12px; color:#fff; background:#080808; }.footer-bar { dis
 .ad-admin-card>label small { display:block; margin:4px 0 0; color:#888; font-size:11px; font-weight:600; }
 .ad-admin-card .text-button { margin-top:8px; }
 .page-shell>.ad-spot { margin:0 0 20px; }
+.container>.ad-spot { margin:0; }
 .ad-admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:28px; }
 .ad-admin-card { display:grid; gap:14px; padding:22px; border:1px solid var(--line); border-radius:16px; background:#fff; }
 .ad-admin-card>header { display:flex; align-items:flex-start; gap:12px; }
