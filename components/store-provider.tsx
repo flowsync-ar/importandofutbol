@@ -15,19 +15,12 @@ type StoreContextValue = {
 
 const StoreContext = createContext<StoreContextValue | null>(null);
 
-function readStorage<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try { return JSON.parse(localStorage.getItem(key) ?? "") as T; } catch { return fallback; }
-}
 
 export function StoreProvider({ children, storePhone = STORE_WHATSAPP }: { children: React.ReactNode; storePhone?: string }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  useEffect(() => {
-    setFavorites(readStorage("iflp-favorites", []));
-    setCart(readStorage("iflp-cart", []));
-  }, []);
+  // ponytail: sin login no hay usuario → carrito y favoritos arrancan vacíos siempre
 
   const toggleFavorite = (id: string) => setFavorites((current) => {
     const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];

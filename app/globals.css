@@ -35,7 +35,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { 
 .mobile-toggle { display:none; }
 .hero { position:relative; color:#fff; background:#050505; }
 .hero:after { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 78% 40%,rgba(242,183,42,.22),transparent 27%),linear-gradient(115deg,transparent 48%,rgba(255,255,255,.04)); }
-.hero-grid { position:relative; z-index:1; min-height:610px; display:grid; grid-template-columns:1.05fr .95fr; align-items:center; gap:64px; }
+.hero-grid { position:relative; z-index:1; display:grid; grid-template-columns:1.05fr .95fr; align-items:center; gap:64px; padding:72px 0; }
 .eyebrow { color:var(--gold); font-size:12px; font-weight:900; letter-spacing:.2em; }
 .eyebrow.dark { color:var(--gold-dark); }
 .hero h1,.page-title h1,.detail-copy h1,.narrow>h1 { margin:15px 0 22px; font-family:var(--font-display),sans-serif; font-size:clamp(60px,7vw,104px); line-height:.82; letter-spacing:-.045em; text-transform:uppercase; }
@@ -130,14 +130,15 @@ footer { padding:14px 0 12px; color:#fff; background:#080808; }.footer-bar { dis
 .password-toggle { flex:0 0 48px; width:48px; border:0; border-left:1px solid #3a3a3a; color:var(--gold); background:transparent; cursor:pointer; }
 .password-toggle svg { width:20px; height:20px; display:block; margin:0 auto; }
 .password-toggle[aria-pressed="true"] { color:#fff; }
-.ad-spot { display:grid; grid-template-columns:minmax(200px,34%) 1fr; align-items:center; gap:28px 36px; margin:0 0 8px; padding:18px 22px; border:1px solid var(--line); border-radius:18px; color:inherit; background:#fff; text-decoration:none; cursor:pointer; }
+.ad-spot { display:grid; grid-template-columns:minmax(80px,18%) 1fr; align-items:center; gap:14px 20px; margin:0 0 8px; padding:10px 14px; border:1px solid var(--line); border-radius:12px; color:inherit; background:#fafaf8; text-decoration:none; cursor:pointer; opacity:.85; }
+.ad-spot:hover { opacity:1; }
 .ad-spot:not(:has(.ad-spot-copy)) { grid-template-columns:1fr; }
-.ad-spot-media { display:grid; place-items:center; min-height:150px; padding:10px; overflow:hidden; border-radius:12px; background:#f3f3ee; }
-.ad-spot img { width:100%; height:150px; display:block; object-fit:contain; }
-.ad-spot-copy { min-width:0; max-width:42rem; }
-.ad-spot-copy>strong { display:block; font-size:22px; line-height:1.2; }
-.ad-spot p { margin:8px 0 0; color:#666; font-size:15px; line-height:1.5; }
-.ad-spot p strong { display:inline; color:#111; font-size:inherit; font-weight:800; }
+.ad-spot-media { display:grid; place-items:center; overflow:hidden; border-radius:8px; background:#f0f0eb; }
+.ad-spot img { width:100%; height:72px; display:block; object-fit:contain; }
+.ad-spot-copy { min-width:0; }
+.ad-spot-copy>strong { display:block; font-size:13px; font-weight:800; line-height:1.2; color:#111; }
+.ad-spot p { margin:3px 0 0; color:#888; font-size:12px; line-height:1.4; }
+.ad-spot p strong { display:inline; color:#555; font-size:inherit; font-weight:800; }
 .ad-admin-card>label small { display:block; margin:4px 0 0; color:#888; font-size:11px; font-weight:600; }
 .ad-admin-card .text-button { margin-top:8px; }
 .page-shell>.ad-spot { margin:0 0 32px; }
@@ -156,5 +157,5 @@ footer { padding:14px 0 12px; color:#fff; background:#080808; }.footer-bar { dis
 .ad-admin-preview img { width:100%; height:180px; object-fit:contain; }
 .ad-admin-preview button { position:absolute; top:8px; right:8px; width:28px; height:28px; display:grid; place-items:center; border:0; border-radius:50%; color:#fff; background:rgba(0,0,0,.72); cursor:pointer; }
 .ad-admin-preview button svg { width:14px; }
-@media(max-width:800px) { .ad-admin-grid { grid-template-columns:1fr; } .ad-spot { grid-template-columns:1fr; gap:16px; } .ad-spot img,.ad-admin-preview img { height:160px; } }
+@media(max-width:800px) { .ad-admin-grid { grid-template-columns:1fr; } .ad-spot img,.ad-admin-preview img { height:60px; } }
 @media (hover:none) { .detail-zoom { cursor:default; } .detail-zoom:hover img { transform:none; } }
