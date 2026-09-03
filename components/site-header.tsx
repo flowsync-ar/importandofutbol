@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Category } from "@/lib/category";
 import { storeCategoryLinks } from "@/lib/category";
 import { useStore } from "./store-provider";
@@ -15,6 +15,10 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
   const [catsOpen, setCatsOpen] = useState(false);
   const { favorites, cart } = useStore();
   const categoryLinks = storeCategoryLinks(categories);
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
   return <>
     <div className="topbar"> Camisetas de calidad premium <span>•</span> 📍 de La Pampa al mundo <span>•</span> Consultas por WhatsApp e Instagram en nuestro contacto </div>
     <header className="site-header">

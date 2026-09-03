@@ -29,7 +29,7 @@ function mapStoreProduct(row: {
     badge: row.badge,
     image: images[0] || "",
     images,
-    featured: Boolean(row.featured),
+    featured: row.featured === true,
     featured_title: row.featured_title || null,
   };
 }
@@ -54,8 +54,10 @@ export const getCategories = cache(async (): Promise<Category[]> => {
 export const getStoreProducts = cache(async (): Promise<Product[]> => {
   if (!supabasePublicEnv()) return jsonProducts as Product[];
   const supabase = await createClient();
-  const featured = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
-  const rows = featured.data ?? (await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false })).data;
+  const withFeatured = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
+  const rows = withFeatured.error
+    ? (await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false })).data
+    : withFeatured.data;
   if (!rows?.length) return jsonProducts as Product[];
   return rows.map((row) => mapStoreProduct(row));
 });

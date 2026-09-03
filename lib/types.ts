@@ -40,10 +40,7 @@ export function formatPrice(value: string | number | null | undefined) {
 export const CATALOG_SIZES = ["S", "M", "L", "XL", "XXL"];
 
 export function featuredProducts(products: Product[]) {
-  const highlighted = products.filter((product) => product.featured);
-  if (highlighted.length) return highlighted;
-  // ponytail: no starred products yet → first catalog photos so the home carousel isn't empty
-  return products.filter((product) => product.image && !product.image.includes("placeholder")).slice(0, 8);
+  return products.filter((product) => product.featured);
 }
 
 export type CartItem = { id: string; name: string; size: string; quantity?: number };
