@@ -24,17 +24,15 @@ export function HeroFeatured({ products }: { products: Product[] }) {
   }
 
   return <div className="hero-art has-slide">
-    <div className="hero-slide">
-      <Link href={`/camisetas/${slide.slug}`} aria-label={`Ver ${slide.name}`}>
-        {photo ? <img src={photo} alt={slide.name}/> : <Image src="/logo.png" width={410} height={410} alt={slide.name} priority/>}
-        <span className="floating-label first">{slide.featured_title || slide.name}</span>
-        <span className="floating-label second">DE LA PAMPA AL MUNDO</span>
-      </Link>
-      {featured.length > 1 && <div className="hero-controls">
-        <button type="button" aria-label="Anterior" onClick={() => setIndex((current) => (current - 1 + featured.length) % featured.length)}><ChevronLeft/></button>
-        <div className="hero-dots">{featured.map((product, itemIndex) => <button type="button" key={product.id} className={itemIndex === index ? "active" : ""} aria-label={product.featured_title || product.name} onClick={() => setIndex(itemIndex)}/>)}</div>
-        <button type="button" aria-label="Siguiente" onClick={() => setIndex((current) => (current + 1) % featured.length)}><ChevronRight/></button>
-      </div>}
-    </div>
+    <Link className="hero-slide" href={`/camisetas/${slide.slug}`} aria-label={`Ver ${slide.name}`}>
+      {photo ? <img src={photo} alt={slide.name}/> : <Image src="/logo.png" width={410} height={410} alt={slide.name} priority/>}
+      <span className="floating-label first">{slide.featured_title || slide.name}</span>
+      <span className="floating-label second">DE LA PAMPA AL MUNDO</span>
+    </Link>
+    {featured.length > 1 && <div className="hero-controls">
+      <button type="button" aria-label="Anterior" onClick={() => setIndex((current) => (current - 1 + featured.length) % featured.length)}><ChevronLeft/></button>
+      <div className="hero-dots">{featured.map((product, itemIndex) => <button type="button" key={product.id} className={itemIndex === index ? "active" : ""} aria-label={product.featured_title || product.name} onClick={() => setIndex(itemIndex)}/>)}</div>
+      <button type="button" aria-label="Siguiente" onClick={() => setIndex((current) => (current + 1) % featured.length)}><ChevronRight/></button>
+    </div>}
   </div>;
 }
