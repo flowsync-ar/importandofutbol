@@ -1,32 +1,22 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import type { CartItem } from "@/lib/types";
 import { STORE_WHATSAPP } from "@/lib/customer";
 
 type StoreContextValue = {
-  favorites: string[];
   cart: CartItem[];
   storePhone: string;
-  toggleFavorite: (id: string) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: string, size: string) => void;
 };
 
 const StoreContext = createContext<StoreContextValue | null>(null);
 
-
 export function StoreProvider({ children, storePhone = STORE_WHATSAPP }: { children: React.ReactNode; storePhone?: string }) {
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // ponytail: sin login no hay usuario → carrito y favoritos arrancan vacíos siempre
-
-  const toggleFavorite = (id: string) => setFavorites((current) => {
-    const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
-    localStorage.setItem("iflp-favorites", JSON.stringify(next));
-    return next;
-  });
+  // ponytail: sin login no hay usuario → carrito arranca vacío siempre
 
   const addToCart = (item: CartItem) => setCart((current) => {
     const existing = current.find((currentItem) => currentItem.id === item.id && currentItem.size === item.size);
@@ -43,7 +33,7 @@ export function StoreProvider({ children, storePhone = STORE_WHATSAPP }: { child
     return next;
   });
 
-  return <StoreContext.Provider value={{ favorites, cart, storePhone, toggleFavorite, addToCart, removeFromCart }}>{children}</StoreContext.Provider>;
+  return <StoreContext.Provider value={{ cart, storePhone, addToCart, removeFromCart }}>{children}</StoreContext.Provider>;
 }
 
 export function useStore() {

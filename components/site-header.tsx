@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Heart, Menu, Search, ShoppingBag, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/category";
 import { storeCategoryLinks } from "@/lib/category";
@@ -13,7 +13,7 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [catsOpen, setCatsOpen] = useState(false);
-  const { favorites, cart } = useStore();
+  const { cart } = useStore();
   const categoryLinks = storeCategoryLinks(categories);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -34,7 +34,7 @@ export function SiteHeader({ categories }: { categories: Category[] }) {
           </div>
           <Link href="/contacto">Contacto</Link>
         </nav>
-        <div className="nav-actions"><Link href="/camisetas" aria-label="Buscar"><Search /></Link><button aria-label={`${favorites.length} favoritos`}><Heart/><b>{favorites.length}</b></button><button onClick={() => setCartOpen(true)} aria-label={`${cart.length} productos en el carrito`}><ShoppingBag/><b>{cart.reduce((total,item) => total + (item.quantity ?? 1),0)}</b></button></div>
+        <div className="nav-actions"><Link href="/camisetas" aria-label="Buscar"><Search /></Link><button onClick={() => setCartOpen(true)} aria-label={`${cart.length} productos en el carrito`}><ShoppingBag/><b>{cart.reduce((total,item) => total + (item.quantity ?? 1),0)}</b></button></div>
       </div>
     </header>
     {open && <div className="menu-backdrop" onClick={() => setOpen(false)}><aside className="mobile-menu" onClick={(e) => e.stopPropagation()}><button onClick={() => setOpen(false)} aria-label="Cerrar menú"><X/></button><Link className="brand" href="/" onClick={() => setOpen(false)}><Image src="/logo.png" width={88} height={88} alt="Importando Fútbol LP"/></Link><nav><Link href="/" onClick={() => setOpen(false)}>Inicio</Link><Link href="/camisetas" onClick={() => setOpen(false)}>Camisetas</Link><strong className="mobile-cats">Categorías</strong>{categoryLinks.map((link) => <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>{link.label}</Link>)}<Link href="/contacto" onClick={() => setOpen(false)}>Contacto</Link></nav></aside></div>}
