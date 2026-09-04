@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { slugifyCategory, slugifyProduct, storeCategoryLinks, storeNavLinks } from "@/lib/category";
-import { featuredProducts, formatPrice, parsePrice, parseSizes } from "@/lib/types";
+import { featuredProducts, homeShowcase, formatPrice, parsePrice, parseSizes } from "@/lib/types";
 
 describe("slugifyCategory", () => {
   it("turns names into URL slugs", () => {
@@ -67,5 +67,14 @@ describe("featuredProducts", () => {
       { id: "2", slug: "b", name: "B", category: "Clubes", team: "B", price: null, sizes: ["M"], badge: null, image: "https://cdn.example/b.jpg" },
     ];
     expect(featuredProducts(products)).toEqual([]);
+  });
+});
+
+describe("homeShowcase", () => {
+  it("caps the home grid and puts starred products first", () => {
+    const products = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({
+      id: String(n), slug: String(n), name: String(n), category: "Clubes", team: String(n), price: null, sizes: ["M"], badge: null, image: "", featured: n === 9,
+    }));
+    expect(homeShowcase(products, 8).map((product) => product.id)).toEqual(["9", "1", "2", "3", "4", "5", "6", "7"]);
   });
 });

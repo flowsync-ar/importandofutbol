@@ -43,4 +43,10 @@ export function featuredProducts(products: Product[]) {
   return products.filter((product) => product.featured);
 }
 
+export function homeShowcase(products: Product[], limit = 8) {
+  const starred = featuredProducts(products);
+  const rest = products.filter((product) => !product.featured);
+  return [...starred, ...rest].slice(0, limit);
+}
+
 export type CartItem = { id: string; name: string; size: string; quantity?: number };
