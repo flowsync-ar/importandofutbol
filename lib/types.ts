@@ -50,4 +50,4 @@ export function homeShowcase(products: Product[], limit = 8) {
   return [...starred, ...rest].slice(0, limit);
 }
 
-export type CartItem = { id: string; name: string; size: string; quantity?: number; code?: string | null };
+export type CartItem = { id: string; name: string; size: string; quantity?: number; code?: string | null; slug?: string; image?: string | null };

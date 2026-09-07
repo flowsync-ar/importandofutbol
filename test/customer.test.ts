@@ -12,6 +12,7 @@ describe("whatsappHref", () => {
 
   it("opens the store WhatsApp chat with the message", () => {
     expect(storeWhatsAppHref("Hola")).toBe(`https://wa.me/5492954827189?text=${encodeURIComponent("Hola")}`);
+    expect(storeWhatsAppHref("Hola", STORE_WHATSAPP, true)).toBe(`https://web.whatsapp.com/send?phone=5492954827189&text=${encodeURIComponent("Hola")}`);
     expect(STORE_WHATSAPP).toContain("2954");
   });
 });
@@ -38,10 +39,19 @@ describe("consultLeadPayload", () => {
       notes: "Hola, Ajax",
     });
   });
+
+  it("does not save a lead without name and WhatsApp", () => {
+    expect(consultLeadPayload("", "", "Hola")).toBeNull();
+    expect(consultLeadPayload("Ana", "", "Hola")).toBeNull();
+  });
 });
 
 describe("consultMessage", () => {
   it("names the customer in the WhatsApp text", () => {
     expect(consultMessage("Ana", "Hola, quiero consultar por Ajax")).toBe("Hola, soy Ana.\nHola, quiero consultar por Ajax");
+  });
+
+  it("skips the name line when the consult is anonymous", () => {
+    expect(consultMessage("  ", "Hola, quiero consultar por Ajax")).toBe("Hola, quiero consultar por Ajax");
   });
 });

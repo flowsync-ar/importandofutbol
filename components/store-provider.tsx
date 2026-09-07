@@ -8,6 +8,7 @@ type StoreContextValue = {
   cart: CartItem[];
   storePhone: string;
   addToCart: (item: CartItem) => void;
+  changeQuantity: (id: string, size: string, delta: number) => void;
   removeFromCart: (id: string, size: string) => void;
 };
 
@@ -27,13 +28,23 @@ export function StoreProvider({ children, storePhone = STORE_WHATSAPP }: { child
     return next;
   });
 
+  const changeQuantity = (id: string, size: string, delta: number) => setCart((current) => {
+    const next = current.flatMap((item) => {
+      if (item.id !== id || item.size !== size) return [item];
+      const quantity = (item.quantity ?? 1) + delta;
+      return quantity < 1 ? [] : [{ ...item, quantity }];
+    });
+    localStorage.setItem("iflp-cart", JSON.stringify(next));
+    return next;
+  });
+
   const removeFromCart = (id: string, size: string) => setCart((current) => {
     const next = current.filter((item) => item.id !== id || item.size !== size);
     localStorage.setItem("iflp-cart", JSON.stringify(next));
     return next;
   });
 
-  return <StoreContext.Provider value={{ cart, storePhone, addToCart, removeFromCart }}>{children}</StoreContext.Provider>;
+  return <StoreContext.Provider value={{ cart, storePhone, addToCart, changeQuantity, removeFromCart }}>{children}</StoreContext.Provider>;
 }
 
 export function useStore() {

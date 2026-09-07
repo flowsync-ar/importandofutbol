@@ -20,8 +20,27 @@ export function whatsappHref(phone: string) {
 
 export const STORE_WHATSAPP = "+54 9 2954 82-7189";
 
-export function storeWhatsAppHref(text: string, phone = STORE_WHATSAPP) {
-  return `${whatsappHref(phone)}?text=${encodeURIComponent(text)}`;
+export function storeWhatsAppHref(text: string, phone = STORE_WHATSAPP, preferWeb = false) {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return null;
+  const query = `text=${encodeURIComponent(text)}`;
+  return preferWeb
+    ? `https://web.whatsapp.com/send?phone=${digits}&${query}`
+    : `https://wa.me/${digits}?${query}`;
+}
+
+export const WHATSAPP_WINDOW = "iflp-whatsapp";
+
+export function prefersWhatsAppWeb() {
+  return typeof navigator !== "undefined" && !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+export function openStoreWhatsApp(text: string, phone = STORE_WHATSAPP) {
+  const href = storeWhatsAppHref(text, phone, prefersWhatsAppWeb());
+  if (!href) return;
+  // ponytail: cannot steal a WhatsApp Web tab the user opened themselves; named window reuses the one we opened. Upgrade: WhatsApp Business API.
+  const chat = window.open(href, WHATSAPP_WINDOW);
+  chat?.focus();
 }
 
 export function normalizePhone(phone: string) {
@@ -30,7 +49,8 @@ export function normalizePhone(phone: string) {
 }
 
 export function consultMessage(name: string, body: string) {
-  return `Hola, soy ${name.trim()}.\n${body}`;
+  const who = name.trim();
+  return who ? `Hola, soy ${who}.\n${body}` : body;
 }
 
 export function readStoredLead() {

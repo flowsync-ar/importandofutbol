@@ -2,7 +2,8 @@
 
 import { MessageCircle, X } from "lucide-react";
 import { useState } from "react";
-import { consultLeadPayload, consultMessage, readStoredLead, STORE_WHATSAPP, storeWhatsAppHref, writeStoredLead } from "@/lib/customer";
+import { consultLeadPayload, consultMessage, openStoreWhatsApp, readStoredLead, STORE_WHATSAPP, writeStoredLead } from "@/lib/customer";
+import { withConsultMedia, type ConsultMedia } from "@/lib/product-code";
 import { createClient } from "@/lib/supabase/client";
 import { supabasePublicEnv } from "@/lib/supabase/env";
 
@@ -14,18 +15,21 @@ async function saveLead(name: string, phone: string, notes: string) {
   await supabase.from("customers").insert({ name: lead.name, phone: lead.phone, email: null, notes: lead.notes || null });
 }
 
-function openChat(name: string, message: string, storePhone: string) {
-  window.open(storeWhatsAppHref(consultMessage(name, message), storePhone), "_blank", "noopener,noreferrer");
+function openChat(name: string, message: string, storePhone: string, media?: ConsultMedia | ConsultMedia[]) {
+  const body = withConsultMedia(message, media, window.location.origin);
+  openStoreWhatsApp(consultMessage(name, body), storePhone);
 }
 
 export function WhatsAppConsult({
   message,
+  consultMedia,
   storePhone,
   className,
   children,
   "aria-label": ariaLabel,
 }: {
   message: string;
+  consultMedia?: ConsultMedia | ConsultMedia[];
   storePhone?: string;
   className?: string;
   children: React.ReactNode;
@@ -34,13 +38,12 @@ export function WhatsAppConsult({
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
   const chatPhone = storePhone || STORE_WHATSAPP;
 
   function start() {
     const lead = readStoredLead();
     if (lead) {
-      openChat(lead.name, message, chatPhone);
+      openChat(lead.name, message, chatPhone, consultMedia);
       void saveLead(lead.name, lead.phone, message);
       return;
     }
@@ -50,11 +53,12 @@ export function WhatsAppConsult({
   function submit(event: React.FormEvent) {
     event.preventDefault();
     const lead = consultLeadPayload(name, phone, message);
-    if (!lead) { setError("Completá tu nombre y un WhatsApp válido."); return; }
-    writeStoredLead(lead.name, lead.phone);
-    openChat(lead.name, message, chatPhone);
+    if (lead) {
+      writeStoredLead(lead.name, lead.phone);
+      void saveLead(lead.name, lead.phone, lead.notes);
+    }
+    openChat(lead?.name ?? name, message, chatPhone, consultMedia);
     setOpen(false);
-    void saveLead(lead.name, lead.phone, lead.notes);
   }
 
   return <>
@@ -62,12 +66,11 @@ export function WhatsAppConsult({
     {open && <div className="drawer-backdrop" onClick={() => setOpen(false)}>
       <form className="product-editor lead-editor" onSubmit={submit} onClick={(event) => event.stopPropagation()}>
         <header><div><span>WHATSAPP</span><h2>Tu consulta</h2></div><button type="button" onClick={() => setOpen(false)} aria-label="Cerrar"><X/></button></header>
-        <p>Dejá tu nombre y WhatsApp para que quedes como cliente. Después se abre el chat.</p>
+        <p>Dejar tus datos es <strong>opcional</strong>. Si querés colaborar con nosotros, anotamos tu nombre y WhatsApp. Si no, seguí al chat igual.</p>
         <div className="editor-grid">
-          <label className="wide">Nombre<input value={name} onChange={(event) => setName(event.target.value)} required autoComplete="name" placeholder="Tu nombre"/></label>
-          <label className="wide">Tu WhatsApp<input value={phone} onChange={(event) => setPhone(event.target.value)} required inputMode="tel" autoComplete="tel" placeholder="299 123-4567"/></label>
+          <label className="wide">Nombre (opcional)<input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" placeholder="Tu nombre"/></label>
+          <label className="wide">WhatsApp (opcional)<input value={phone} onChange={(event) => setPhone(event.target.value)} inputMode="tel" autoComplete="tel" placeholder="299 123-4567"/></label>
         </div>
-        {error && <div className="form-error" role="alert">{error}</div>}
         <button className="button gold full"><MessageCircle/> Continuar a WhatsApp</button>
       </form>
     </div>}
