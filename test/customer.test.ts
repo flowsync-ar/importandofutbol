@@ -48,7 +48,7 @@ describe("consultLeadPayload", () => {
 
 describe("consultMessage", () => {
   it("names the customer in the WhatsApp text", () => {
-    expect(consultMessage("Ana", "Hola, quiero consultar por Ajax")).toBe("Hola, soy Ana.\nHola, quiero consultar por Ajax");
+    expect(consultMessage("Ana", "Hola, quiero consultar por Ajax")).toBe("Hola, soy Ana.\nQuiero consultar por Ajax");
   });
 
   it("skips the name line when the consult is anonymous", () => {

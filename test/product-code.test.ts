@@ -46,8 +46,8 @@ describe("cartConsultMessage", () => {
 });
 
 describe("withConsultMedia", () => {
-  it("appends the photo and product page so WhatsApp can show them", () => {
-    expect(withConsultMedia("Hola, quiero consultar por Brasil (código IF-0007).", { slug: "brasil", image: "/products/brasil.jpg" }, "https://tienda.test"))
-      .toBe("Hola, quiero consultar por Brasil (código IF-0007).\nhttps://tienda.test/products/brasil.jpg\nhttps://tienda.test/camisetas/brasil");
+  it("appends the product page so WhatsApp can open the ficha", () => {
+    expect(withConsultMedia("Hola, quiero consultar por Brasil (código IF-0007).", { slug: "brasil" }, "https://tienda.test"))
+      .toBe("Hola, quiero consultar por Brasil (código IF-0007).\nhttps://tienda.test/camisetas/brasil");
   });
 });

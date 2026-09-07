@@ -64,7 +64,7 @@ export function ProductDetail({ product }: { product: Product }) {
         </div>;
       })}</div> : <small>Este producto no tiene talles cargados.</small>}
       <button className="button gold full" disabled={!total} onClick={addPicks}><ShoppingBag/> Agregar a consulta{total ? ` (${total})` : ""}</button>
-      <WhatsAppConsult className="button whatsapp-button full" storePhone={storePhone} message={message} consultMedia={{ slug: product.slug, image: photo }}><MessageCircle/> Consultar por WhatsApp</WhatsAppConsult>
+      <WhatsAppConsult className="button whatsapp-button full" storePhone={storePhone} message={message} consultMedia={{ slug: product.slug }}><MessageCircle/> Consultar por WhatsApp</WhatsAppConsult>
       <ul className="detail-notes"><li><Check/> Atención personalizada</li><li><Check/> Confirmación de stock antes del pedido</li></ul>
     </div>
   </div></section>;

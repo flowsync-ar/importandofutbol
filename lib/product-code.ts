@@ -46,13 +46,10 @@ export function cartConsultMessage(items: { id: string; name: string; size: stri
   return `Hola, quiero consultar por:\n${items.map((item) => `• ${productConsultLine(item, item.size, item.quantity)}`).join("\n")}`;
 }
 
-export type ConsultMedia = { slug?: string; image?: string | null };
+export type ConsultMedia = { slug?: string };
 
 export function withConsultMedia(body: string, media: ConsultMedia | ConsultMedia[] | undefined, origin: string) {
   const items = !media ? [] : Array.isArray(media) ? media : [media];
-  const lines = [...new Set(items.flatMap((item) => [
-    absoluteUrl(item.image ?? "", origin),
-    item.slug ? absoluteUrl(`/camisetas/${item.slug}`, origin) : "",
-  ].filter(Boolean)))];
+  const lines = [...new Set(items.map((item) => item.slug ? absoluteUrl(`/camisetas/${item.slug}`, origin) : "").filter(Boolean))];
   return lines.length ? `${body}\n${lines.join("\n")}` : body;
 }

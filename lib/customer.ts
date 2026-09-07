@@ -50,7 +50,10 @@ export function normalizePhone(phone: string) {
 
 export function consultMessage(name: string, body: string) {
   const who = name.trim();
-  return who ? `Hola, soy ${who}.\n${body}` : body;
+  if (!who) return body;
+  const rest = body.replace(/^hola,?\s*/i, "");
+  const next = rest ? rest[0].toUpperCase() + rest.slice(1) : rest;
+  return `Hola, soy ${who}.\n${next}`;
 }
 
 export function readStoredLead() {
