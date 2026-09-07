@@ -18,7 +18,10 @@ export default async function AdminPage() {
   const userId = String(claimsData.claims.sub);
   const { data: profile } = await supabase.from("admin_profiles").select("must_change_password").eq("user_id",userId).maybeSingle();
   if (profile?.must_change_password) redirect("/admin/change-password");
-  const featuredQuery = await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title").order("created_at",{ascending:false});
+  const codeQuery = await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title,code").order("created_at",{ascending:false});
+  const featuredQuery = codeQuery.error
+    ? await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title").order("created_at",{ascending:false})
+    : codeQuery;
   const productsResult = featuredQuery.error
     ? await supabase.from("products").select("id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active").order("created_at",{ascending:false})
     : featuredQuery;

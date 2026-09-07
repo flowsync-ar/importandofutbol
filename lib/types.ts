@@ -11,6 +11,7 @@ export type Product = {
   images?: string[];
   featured?: boolean;
   featured_title?: string | null;
+  code?: string | null;
 };
 
 export function parseSizes(value: string | string[] | null | undefined) {
@@ -49,4 +50,4 @@ export function homeShowcase(products: Product[], limit = 8) {
   return [...starred, ...rest].slice(0, limit);
 }
 
-export type CartItem = { id: string; name: string; size: string; quantity?: number };
+export type CartItem = { id: string; name: string; size: string; quantity?: number; code?: string | null };

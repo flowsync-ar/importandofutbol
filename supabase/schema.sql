@@ -12,10 +12,13 @@ create table if not exists public.products (
   image_urls text[] not null default '{}',
   featured boolean not null default false,
   featured_title text,
+  code text,
   active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Product codes (IF-0001…): also run supabase/product-code.sql
 
 alter table public.products enable row level security;
 
@@ -49,6 +52,7 @@ grant insert, update, delete on public.products to authenticated;
 -- Ads: also run supabase/ads.sql
 
 -- Product highlights: also run supabase/featured.sql
+-- Product codes: also run supabase/product-code.sql
 -- Extra admin users: also run supabase/add-admin.sql
 -- Product images: also run supabase/storage.sql to create the public bucket and upload policies.
 

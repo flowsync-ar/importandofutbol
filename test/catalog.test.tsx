@@ -27,6 +27,18 @@ describe("Catalog", () => {
     expect(screen.getByRole("option", { name: "Niños" })).toBeInTheDocument();
   });
 
+  it("shows the product code on the card", () => {
+    render(<StoreProvider><ProductCard product={products[0] as Product} /></StoreProvider>);
+    expect(screen.getByText("IF-0001")).toBeVisible();
+  });
+
+  it("filters by product code", () => {
+    renderCatalog();
+    fireEvent.change(screen.getByLabelText("Buscar camisetas"), { target: { value: "IF-0003" } });
+    expect(screen.getByText("Camiseta Club Blanca")).toBeVisible();
+    expect(screen.queryByText("Camiseta Argentina")).not.toBeInTheDocument();
+  });
+
   it("shows the uploaded photo instead of the mock jersey", () => {
     const product = { ...(products[0] as Product), image: "https://cdn.example/argentina.jpg", images: ["https://cdn.example/argentina.jpg"] };
     render(<StoreProvider><ProductCard product={product} /></StoreProvider>);

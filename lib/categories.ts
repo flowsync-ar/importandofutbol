@@ -3,19 +3,21 @@ import { createClient } from "@/lib/supabase/server";
 import { supabasePublicEnv } from "@/lib/supabase/env";
 import type { Category } from "@/lib/category";
 import { parsePrice, parseSizes, type Product } from "@/lib/types";
+import { productCode } from "@/lib/product-code";
 import { productImageList } from "@/lib/product-images";
 import jsonProducts from "@/data/products.json";
 import type { Ad } from "@/lib/ads";
 import { DEFAULT_CONTACTS, type ContactChannel } from "@/lib/contacts";
 
-const productColumns = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title";
-const productColumnsFallback = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active";
+const productColumns = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title,code";
+const productColumnsFallback = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active,featured,featured_title";
+const productColumnsLegacy = "id,slug,name,category,team,price,sizes,badge,image_url,image_urls,active";
 
 function mapStoreProduct(row: {
   id: string; slug: string; name: string; category: string; team: string;
   price: string | number | null; sizes: string[] | string | null; badge: string | null;
   image_url?: string | null; image_urls?: string[] | null;
-  featured?: boolean | null; featured_title?: string | null;
+  featured?: boolean | null; featured_title?: string | null; code?: string | null;
 }): Product {
   const images = productImageList(row);
   return {
@@ -31,6 +33,7 @@ function mapStoreProduct(row: {
     images,
     featured: row.featured === true,
     featured_title: row.featured_title || null,
+    code: productCode(row),
   };
 }
 
@@ -54,9 +57,12 @@ export const getCategories = cache(async (): Promise<Category[]> => {
 export const getStoreProducts = cache(async (): Promise<Product[]> => {
   if (!supabasePublicEnv()) return jsonProducts as Product[];
   const supabase = await createClient();
-  const withFeatured = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
+  const withCode = await supabase.from("products").select(productColumns).eq("active", true).order("created_at", { ascending: false });
+  const withFeatured = withCode.error
+    ? await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false })
+    : withCode;
   const rows = withFeatured.error
-    ? (await supabase.from("products").select(productColumnsFallback).eq("active", true).order("created_at", { ascending: false })).data
+    ? (await supabase.from("products").select(productColumnsLegacy).eq("active", true).order("created_at", { ascending: false })).data
     : withFeatured.data;
   if (!rows?.length) return jsonProducts as Product[];
   return rows.map((row) => mapStoreProduct(row));
